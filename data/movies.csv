@@ -1,0 +1,11 @@
+movieId,title,genres,year,average_rating,num_ratings
+1,Toy Story (1995),Animation|Children|Comedy,1995,4.3,2200
+2,Jumanji (1995),Adventure|Children|Fantasy,1995,3.8,1900
+3,Grumpier Old Men (1995),Comedy|Romance,1995,3.5,1350
+4,Waiting to Exhale (1995),Comedy|Drama|Romance,1995,3.7,875
+5,Father of the Bride Part II (1995),Comedy,1995,3.6,990
+6,Heat (1995),Action|Crime|Thriller,1995,4.0,2500
+7,Sabrina (1995),Comedy|Romance,1995,3.2,650
+8,Tom and Huck (1995),Adventure|Children,1995,2.9,580
+9,Sudden Death (1995),Action,1995,3.1,720
+10,GoldenEye (1995),Action|Adventure|Thriller,1995,4.1,2750
