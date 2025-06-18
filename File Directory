@@ -1,0 +1,32 @@
+NetRecommender-Capstone/
+├── data/
+│   └── movies.csv
+│   └── users.csv
+├── recommender/
+│   ├── java/
+│   │   └── CollaborativeFiltering.java
+│   │   └── ContentBasedFiltering.java
+│   ├── python/
+│   │   └── hybrid_recommender.py
+│   │   └── utils.py
+├── pipeline/
+│   ├── spark_job.py
+│   └── extract_transform_load.java
+├── deployment/
+│   └── Dockerfile
+│   └── docker-compose.yml
+│   └── helm/
+│       └── chart.yaml
+│   └── ansible/
+│       └── deploy.yml
+├── ci-cd/
+│   └── github-actions.yml
+├── tests/
+│   └── test_recommender.py
+├── notebooks/
+│   └── analysis.ipynb
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── tags.md
+├── .gitignore
