@@ -1,0 +1,21 @@
+---
+- name: 🚀 Deploy Netflix Recommender with Helm
+  hosts: localhost
+  connection: local
+  tasks:
+
+    - name: Ensure Helm is installed
+      shell: |
+        if ! command -v helm &> /dev/null; then
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        fi
+
+    - name: Add Helm repo if needed
+      shell: helm repo add stable https://charts.helm.sh/stable
+      ignore_errors: yes
+
+    - name: Deploy Netflix Recommender Chart
+      shell: |
+        helm upgrade --install netflix ./helm/netflix-recommender \
+          --set image.repository=your-dockerhub-username/netflix-recommender \
+          --set image.tag=latest
