@@ -1,0 +1,7 @@
+{
+  "user_id": 42,
+  "recommendations": [
+    {"movie_id": 120, "title": "Star Wars (1977)", "score": 4.98},
+    {"movie_id": 208, "title": "Back to the Future (1985)", "score": 4.87}
+  ]
+}
