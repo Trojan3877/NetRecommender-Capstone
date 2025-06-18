@@ -1,6 +1,7 @@
 # NetRecommender-Capstone
 Deliver personalized movie/show recommendations using collaborative and content-based filtering.
 # 🎥 NetRecommender‑Capstone
+https://codecov.io/gh/Trojan3877/NetRecommender-Capstone/branch/main/graph/badge.svg
 
 ![Capstone Project](https://img.shields.io/badge/Capstone-Project-blueviolet?style=for-the-badge&logo=github)
 ![Build](https://img.shields.io/badge/build-passing-success)
