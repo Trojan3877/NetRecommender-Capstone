@@ -10,6 +10,12 @@ Deliver personalized movie/show recommendations using collaborative and content-
 ![Terraform](https://img.shields.io/badge/terraform-enabled-lightblue)
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-orange)
 ![Coverage Badge](https://img.shields.io/badge/coverage-92%25-brightgreen)
+## 📦 Demo Files
+
+- 📁 [`data/`](./data/README.md): Dataset source and usage
+- 🧪 [`api/examples/example_request.json`](./api/examples/example_request.json): Sample input
+- 🧾 [`api/examples/example_response.json`](./api/examples/example_response.json): Sample output
+- 📓 [`notebooks/demo_usage.ipynb`](./notebooks/demo_usage.ipynb): Demo workflow and visualization
 
 ---
 
