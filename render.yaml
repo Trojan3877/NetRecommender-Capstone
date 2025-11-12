@@ -7,6 +7,9 @@ services:
     branch: main
     dockerfilePath: Dockerfile.api
     autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
 
   - type: web
     name: netrecommender-dashboard
@@ -16,3 +19,6 @@ services:
     branch: main
     dockerfilePath: Dockerfile.dashboard
     autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8501
