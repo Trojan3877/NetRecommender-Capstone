@@ -13,4 +13,4 @@ mlflow==2.16.0
 
 # modeling (choose one path; can add torch/tf later)
 scipy
-implicit~=0.7  # collaborative filtering alt
+
