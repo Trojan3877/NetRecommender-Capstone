@@ -1,16 +1,9 @@
-# NetRecommender-Capstone
-Deliver personalized movie/show recommendations using collaborative and content-based filtering.
-# 🎥 NetRecommender‑Capstone
-https://codecov.io/gh/Trojan3877/NetRecommender-Capstone/branch/main/graph/badge.svg
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Apache Airflow](https://img.shields.io/badge/Airflow-Orchestration-red)
+![MLflow](https://img.shields.io/badge/MLflow-Tracking-green)
+![MetriXflow](https://img.shields.io/badge/MetriXflow-Metrics-blueviolet)
+![Docker](https://img.shields.io/badge/Docker-Containerization-lightblue)
 
-![Capstone Project](https://img.shields.io/badge/Capstone-Project-blueviolet?style=for-the-badge&logo=github)
-![Build](https://img.shields.io/badge/build-passing-success)
-![Tests](https://img.shields.io/badge/tests-pytest-blue)
-![Docker](https://img.shields.io/badge/docker-enabled-blue)
-![Kubernetes](https://img.shields.io/badge/kubernetes-ready-blue)
-![Terraform](https://img.shields.io/badge/terraform-enabled-lightblue)
-![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-orange)
-![Coverage Badge](https://img.shields.io/badge/coverage-92%25-brightgreen)
 ## 📦 Demo Files
 
 - 📁 [`data/`](./data/README.md): Dataset source and usage
