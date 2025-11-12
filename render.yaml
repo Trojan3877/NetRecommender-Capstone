@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: ./Dockerfile.api
+    dockerfilePath: Dockerfile.api
     autoDeploy: true
 
   - type: web
@@ -14,5 +14,5 @@ services:
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: ./Dockerfile.dashboard
+    dockerfilePath: Dockerfile.dashboard
     autoDeploy: true
