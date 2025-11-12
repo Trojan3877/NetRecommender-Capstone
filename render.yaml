@@ -5,13 +5,8 @@ services:
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: ./Dockerfile.app
+    dockerfilePath: ./Dockerfile.api
     autoDeploy: true
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: PYTHONUNBUFFERED
-        value: "1"
 
   - type: web
     name: netrecommender-dashboard
@@ -19,10 +14,5 @@ services:
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: ./Dockerfile.app
+    dockerfilePath: ./Dockerfile.dashboard
     autoDeploy: true
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: PYTHONUNBUFFERED
-        value: "1"
