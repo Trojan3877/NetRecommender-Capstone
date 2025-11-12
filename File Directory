@@ -1,32 +1,36 @@
 NetRecommender-Capstone/
+│
 ├── data/
-│   └── movies.csv
-│   └── users.csv
-├── recommender/
-│   ├── java/
-│   │   └── CollaborativeFiltering.java
-│   │   └── ContentBasedFiltering.java
-│   ├── python/
-│   │   └── hybrid_recommender.py
-│   │   └── utils.py
-├── pipeline/
-│   ├── spark_job.py
-│   └── extract_transform_load.java
-├── deployment/
-│   └── Dockerfile
-│   └── docker-compose.yml
-│   └── helm/
-│       └── chart.yaml
-│   └── ansible/
-│       └── deploy.yml
-├── ci-cd/
-│   └── github-actions.yml
-├── tests/
-│   └── test_recommender.py
+│   ├── raw/
+│   ├── processed/
+│
+├── dags/
+│   └── recommender_pipeline_dag.py       ← Airflow orchestration
+│
+├── models/
+│   ├── model.pkl
+│   └── model_metadata.json
+│
 ├── notebooks/
-│   └── analysis.ipynb
-├── README.md
-├── LICENSE
+│   └── demo_notebook.ipynb
+│
+├── src/
+│   ├── data_preprocessing.py
+│   ├── model_training.py
+│   ├── evaluation.py
+│   └── api_service.py                    ← FastAPI endpoint
+│
+├── tracking/
+│   ├── mlruns/                           ← MLflow tracking
+│   ├── metrics.md                        ← Professional metrics log
+│   └── reports/
+│
+├── airflow_settings/
+│   ├── airflow.cfg
+│   └── requirements.txt
+│
+├── Dockerfile
 ├── requirements.txt
-├── tags.md
+├── README.md
 ├── .gitignore
+└── LICENSE
