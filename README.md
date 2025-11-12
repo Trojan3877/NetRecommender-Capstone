@@ -1,8 +1,30 @@
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![Apache Airflow](https://img.shields.io/badge/Airflow-Orchestration-red)
+# NetRecommender-Capstone
+
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Airflow](https://img.shields.io/badge/Airflow-Orchestration-red)
 ![MLflow](https://img.shields.io/badge/MLflow-Tracking-green)
-![MetriXflow](https://img.shields.io/badge/MetriXflow-Metrics-blueviolet)
-![Docker](https://img.shields.io/badge/Docker-Containerization-lightblue)
+![MetriXflow](https://img.shields.io/badge/MetriXflow-Metrics-purple)
+![FastAPI](https://img.shields.io/badge/FastAPI-Inference-009688)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ed)
+
+A Netflix-style recommendation system with **Apache Airflow** orchestration, **MLflow** experiment tracking, **MetriXflow** evaluation metrics, a **FastAPI** inference service, and a **Streamlit** dashboard.
+
+![Architecture](assets/NetRecommender_Architecture.png)
+
+## Project layout
+## Quick Start (Docker)
+
+```bash
+# 1) Start all services
+docker compose up -d --build
+
+# 2) Open the UIs
+# Airflow:   http://localhost:8080  (user: admin / pw: admin)
+# MLflow:    http://localhost:5000
+# API docs:  http://localhost:8000/docs
+# Dashboard: http://localhost:8501
+
 
 ## 📦 Demo Files
 
