@@ -9,7 +9,7 @@ streamlit
 
 # tracking
 mlflow==2.16.0
-metrixflow
+
 
 # modeling (choose one path; can add torch/tf later)
 scipy
