@@ -1,0 +1,36 @@
+services:
+  # 1️⃣ FastAPI inference API
+  - type: web
+    name: netrecommender-api
+    env: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile.app
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MLFLOW_TRACKING_URI
+        value: ""
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    startCommand: uvicorn src.api_service:app --host 0.0.0.0 --port 10000
+
+  # 2️⃣ Streamlit dashboard
+  - type: web
+    name: netrecommender-dashboard
+    env: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile.app
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MLFLOW_TRACKING_URI
+        value: ""
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    startCommand: streamlit run src/dashboard.py --server.port 10000 --server.address 0.0.0.0
