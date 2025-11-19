@@ -1,130 +1,126 @@
 """
 NetRecommender-Capstone
-Utility & Helper Functions (L5/L6 Production Quality)
+Utility Functions (L6 Production Quality)
 
 Author: Corey Leath (Trojan3877)
+
+This module provides:
+✔ Config loading with validation
+✔ Safe directory creation
+✔ Experiment logging
+✔ Device (GPU/CPU) reporting
+✔ Seed fixing for reproducibility
 """
 
 import os
 import yaml
-import time
 import random
 import numpy as np
-import logging
-import pandas as pd
 import tensorflow as tf
+from datetime import datetime
 
 
-# ---------------------------------------------------------------------------
-# Load config.yaml
-# ---------------------------------------------------------------------------
-def load_config(path="config/config.yaml"):
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
+# -------------------------------------------------------------------
+# Load YAML Configuration
+# -------------------------------------------------------------------
+def load_config(config_path="config/config.yaml"):
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(
+            f"[ERROR] Config file not found at: {config_path}"
+        )
+
+    with open(config_path, "r") as f:
+        try:
+            config = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ValueError(f"[ERROR] Invalid YAML format: {e}")
+
+    # Basic validation
+    required_sections = ["training", "paths", "model"]
+    for section in required_sections:
+        if section not in config:
+            raise ValueError(f"[ERROR] Missing '{section}' section in config.yaml")
+
+    return config
 
 
-# ---------------------------------------------------------------------------
-# Ensure reproducibility (L6 requirement)
-# ---------------------------------------------------------------------------
-def set_seed(seed: int = 42):
+# -------------------------------------------------------------------
+# Make directory safely
+# -------------------------------------------------------------------
+def ensure_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
+        print(f"[INFO] Created directory: {path}")
+
+
+# -------------------------------------------------------------------
+# Fix Random Seeds
+# -------------------------------------------------------------------
+def set_global_seed(seed=42):
+    print(f"[INFO] Setting global seed: {seed}")
     random.seed(seed)
     np.random.seed(seed)
     tf.random.set_seed(seed)
 
 
-# ---------------------------------------------------------------------------
-# Logging Setup
-# ---------------------------------------------------------------------------
-def setup_logging(log_dir="artifacts/logs/"):
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, "pipeline.log")
-
-    logging.basicConfig(
-        filename=log_file,
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] — %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    logging.getLogger().addHandler(logging.StreamHandler())
-    logging.info("Logging initialized.")
-    return logging
+# -------------------------------------------------------------------
+# GPU/CPU Device Report
+# -------------------------------------------------------------------
+def print_device_info():
+    gpus = tf.config.list_physical_devices("GPU")
+    if gpus:
+        print(f"[INFO] GPU is available: {gpus}")
+    else:
+        print("[INFO] Running on CPU (no GPU detected)")
 
 
-# ---------------------------------------------------------------------------
-# Timer Decorator (great for profiling)
-# ---------------------------------------------------------------------------
-def timing(func):
-    def wrap(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        print(f"[TIMER] {func.__name__} took {end - start:.2f}s")
-        return result
-    return wrap
+# -------------------------------------------------------------------
+# Time helper
+# -------------------------------------------------------------------
+def timestamp():
+    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
-# ---------------------------------------------------------------------------
-# Safe directory creation
-# ---------------------------------------------------------------------------
-def ensure_dir(path: str):
-    if not os.path.exists(path):
-        os.makedirs(path, exist_ok=True)
+# -------------------------------------------------------------------
+# Training log header
+# -------------------------------------------------------------------
+def print_training_header(config):
+    print("\n" + "=" * 60)
+    print("        NET RECOMMENDER — TRAINING SESSION STARTED")
+    print("=" * 60)
+    print(f"Timestamp: {timestamp()}")
+    print(f"Epochs: {config['training']['epochs']}")
+    print(f"Batch Size: {config['training']['batch_size']}")
+    print(f"Learning Rate: {config['training']['learning_rate']}")
+    print("=" * 60 + "\n")
 
 
-# ---------------------------------------------------------------------------
-# Load dataset files with safe checks
-# ---------------------------------------------------------------------------
-def load_ratings(ratings_path: str) -> pd.DataFrame:
-    if not os.path.exists(ratings_path):
-        raise FileNotFoundError(f"Ratings file not found: {ratings_path}")
+# -------------------------------------------------------------------
+# Summarize model after training
+# -------------------------------------------------------------------
+def summarize_training_history(history):
+    print("\n" + "=" * 60)
+    print("               TRAINING SUMMARY")
+    print("=" * 60)
 
-    df = pd.read_csv(ratings_path)
-    return df
+    for key in history.history:
+        last_val = history.history[key][-1]
+        print(f"{key}: {last_val:.4f}")
 
-
-def load_items(items_path: str) -> pd.DataFrame:
-    if not os.path.exists(items_path):
-        raise FileNotFoundError(f"Items file not found: {items_path}")
-
-    df = pd.read_csv(items_path)
-    return df
+    print("=" * 60 + "\n")
 
 
-# ---------------------------------------------------------------------------
-# Train/Val/Test Split for recommenders
-# Stratified by user to prevent leakage (L6 approach)
-# ---------------------------------------------------------------------------
-def user_stratified_split(df, test_size=0.2, val_size=0.1, seed=42):
-    set_seed(seed)
+# -------------------------------------------------------------------
+# Save training metrics to disk
+# -------------------------------------------------------------------
+def save_metrics(history, path="results/metrics.txt"):
+    ensure_dir(os.path.dirname(path))
 
-    users = df["user_id"].unique()
-    np.random.shuffle(users)
-
-    n_users = len(users)
-    n_test = int(n_users * test_size)
-    n_val = int(n_users * val_size)
-
-    test_users = users[:n_test]
-    val_users = users[n_test:n_test + n_val]
-    train_users = users[n_test + n_val:]
-
-    train_df = df[df["user_id"].isin(train_users)]
-    val_df = df[df["user_id"].isin(val_users)]
-    test_df = df[df["user_id"].isin(test_users)]
-
-    return train_df, val_df, test_df
-
-
-# ---------------------------------------------------------------------------
-# Save metrics to artifacts
-# ---------------------------------------------------------------------------
-def save_metrics(metrics: dict, output_dir="artifacts/metrics/"):
-    ensure_dir(output_dir)
-    path = os.path.join(output_dir, "metrics.json")
-
-    import json
     with open(path, "w") as f:
-        json.dump(metrics, f, indent=4)
+        f.write("Training Metrics\n")
+        f.write("=" * 40 + "\n")
+        for key in history.history:
+            values = [str(round(v, 5)) for v in history.history[key]]
+            f.write(f"{key}: {values}\n")
 
-    print(f"[INFO] Metrics saved to {path}")
+    print(f"[INFO] Saved metrics → {path}")
