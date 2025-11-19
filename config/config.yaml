@@ -1,46 +1,51 @@
-# =============================================================================
-# NetRecommender-Capstone — Production Configuration
-# Author: Corey Leath (Trojan3877)
-# Level: L5/L6 Machine Learning Engineer
-# =============================================================================
+# =====================================================================
+# NetRecommender-Capstone
+# L6 Production Configuration File
+#
+# This file configures:
+# - Model hyperparameters
+# - Training settings
+# - Negative sampling
+# - Directory paths for data, checkpoints, and logs
+# =====================================================================
 
-dataset:
-  path: "data/raw/"
-  processed_path: "data/processed/"
-  ratings_file: "ratings.csv"
-  items_file: "items.csv"
-  min_ratings_per_user: 5
-  test_size: 0.2
-  val_size: 0.1
-  seed: 42
-
+# --------------------------------------------------------
+# Model Hyperparameters
+# --------------------------------------------------------
 model:
-  embedding_dim: 64
-  hidden_units: [128, 64]
-  dropout_rate: 0.2
-  learning_rate: 0.001
-  l2_regularization: 1e-6
+  embedding_dim: 64                   # Latent factor size for users/items
+  hidden_units: [128, 64, 32]         # Deep neural network layers
+  dropout_rate: 0.3                   # Dropout for regularization
+  l2_regularization: 1e-6             # Prevents embedding collapse
+  learning_rate: 0.001                # Adam optimizer learning rate
 
+
+# --------------------------------------------------------
+# Training Parameters
+# --------------------------------------------------------
 training:
-  batch_size: 128
-  epochs: 20
-  early_stopping_patience: 3
-  shuffle: true
+  epochs: 10                          # Increase to 20–40 for real datasets
+  batch_size: 256                     # TF GPU-optimized batch size
+  negative_samples: 4                 # Per positive interaction
+  learning_rate: 0.001                # Should match model.learning_rate
+  seed: 42                            # Full reproducibility
+  top_k: 10                           # Used for evaluation metrics (Precision@K, NDCG@K)
 
+
+# --------------------------------------------------------
+# File & Directory Paths
+# --------------------------------------------------------
 paths:
-  model_dir: "artifacts/model/"
-  logs_dir: "artifacts/logs/"
-  metrics_dir: "artifacts/metrics/"
-  exports_dir: "artifacts/exports/"
+  interactions: "data/interactions.csv"     # Raw interaction dataset
+  checkpoints: "checkpoints/"               # Saved TF model weights
+  results: "results/"                       # Metrics, logs, figures
+  logs: "logs/"                             # Training logs / runtime logs
+  exports: "exports/"                       # Exported embedding vectors, etc.
 
+
+# --------------------------------------------------------
+# Evaluation Settings
+# --------------------------------------------------------
 evaluation:
-  compute_top_k: true
-  k_values: [5, 10, 20]
-  compute_rmse: true
-  compute_precision_recall: true
-  compute_ndcg: true
-
-deployment:
-  api_enabled: true
-  default_top_k: 10
-  allow_batch_recommend: true
+  top_k: 10                 # Used for ranking metrics
+  verbose: true             # Increase logging detail
