@@ -1,9 +1,56 @@
-FROM python:3.12-slim
+# ================================================================
+# NetRecommender-Capstone — L6 Production Dockerfile
+# GPU-enabled TensorFlow + Python environment
+# Author: Corey Leath (Trojan3877)
+# ================================================================
 
+# ------------------------------------------------
+# BASE IMAGE (NVIDIA GPU-Optimized TensorFlow)
+# ------------------------------------------------
+FROM tensorflow/tensorflow:latest-gpu
+
+# ------------------------------------------------
+# System Dependencies
+# ------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    python3-dev \
+    libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------
+# Set Working Directory
+# ------------------------------------------------
 WORKDIR /app
-COPY . /app
 
-RUN pip install --no-cache-dir -r requirements.txt
+# ------------------------------------------------
+# Copy Requirements First (Layer Caching)
+# ------------------------------------------------
+COPY requirements.txt .
 
-EXPOSE 10000
-CMD ["uvicorn", "src.api_service:app", "--host", "0.0.0.0", "--port", "10000"]
+# ------------------------------------------------
+# Install Python dependencies
+# ------------------------------------------------
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# ------------------------------------------------
+# Copy Application Code
+# ------------------------------------------------
+COPY . .
+
+# ------------------------------------------------
+# Create Non-Root User for Security
+# ------------------------------------------------
+RUN useradd -m appuser
+USER appuser
+
+# ------------------------------------------------
+# Expose Ports (for API or model server later)
+# ------------------------------------------------
+EXPOSE 8080
+
+# ------------------------------------------------
+# Default Command (train or inference)
+# ------------------------------------------------
+CMD ["python", "src/train.py"]
