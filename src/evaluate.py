@@ -1,171 +1,143 @@
 """
 NetRecommender-Capstone
-Evaluation Module (L5/L6 Production Quality)
+Evaluation Metrics for Recommender Systems (L6 Production Quality)
 
 Author: Corey Leath (Trojan3877)
 
-Evaluates:
-✔ RMSE
+Metrics Implemented:
 ✔ Precision@K
 ✔ Recall@K
 ✔ NDCG@K
-✔ Ranking metrics for recommender systems
+✔ HitRate@K
+
+These are industry-standard metrics used by Netflix, YouTube, Spotify,
+Amazon Personalize, TikTok, and other ranking-based recommender systems.
 """
 
-import os
-import json
 import numpy as np
-import tensorflow as tf
 from tqdm import tqdm
-from utils import load_config, ensure_dir, save_metrics
-from data_loader import load_recommender_dataset
 
 
-# ---------------------------------------------------------------
-# RMSE (Explicit or proxy metric)
-# ---------------------------------------------------------------
-def compute_rmse(model, test_ds):
-    mse = tf.keras.metrics.MeanSquaredError()
-    for batch_x, batch_y in test_ds:
-        preds = model.predict(batch_x)
-        mse.update_state(batch_y, preds)
-    return np.sqrt(mse.result().numpy())
+# ---------------------------------------------------------------------
+# Compute DCG (Discounted Cumulative Gain)
+# ---------------------------------------------------------------------
+def dcg_at_k(relevance_list, k):
+    relevance_list = np.asfarray(relevance_list)[:k]
+    if relevance_list.size:
+        return np.sum(relevance_list / np.log2(np.arange(2, relevance_list.size + 2)))
+    return 0.0
 
 
-# ---------------------------------------------------------------
-# Ranking Metrics
-# ---------------------------------------------------------------
-def precision_at_k(recommended, relevant, k):
-    recommended_k = recommended[:k]
-    return len(set(recommended_k) & set(relevant)) / k
+# ---------------------------------------------------------------------
+# Compute NDCG@K
+# ---------------------------------------------------------------------
+def ndcg_at_k(relevance_list, k):
+    dcg = dcg_at_k(relevance_list, k)
+    ideal_dcg = dcg_at_k(sorted(relevance_list, reverse=True), k)
+
+    return dcg / ideal_dcg if ideal_dcg > 0 else 0.0
 
 
-def recall_at_k(recommended, relevant, k):
-    recommended_k = recommended[:k]
-    if len(relevant) == 0:
-        return 0.0
-    return len(set(recommended_k) & set(relevant)) / len(relevant)
+# ---------------------------------------------------------------------
+# Precision@K
+# ---------------------------------------------------------------------
+def precision_at_k(relevance_list, k):
+    relevance_list = np.asarray(relevance_list)[:k]
+    return np.mean(relevance_list)
 
 
-def ndcg_at_k(recommended, relevant, k):
-    recommended_k = recommended[:k]
-
-    dcg = 0.0
-    for idx, item in enumerate(recommended_k):
-        if item in relevant:
-            dcg += 1 / np.log2(idx + 2)
-
-    ideal_dcg = 0.0
-    for idx in range(min(len(relevant), k)):
-        ideal_dcg += 1 / np.log2(idx + 2)
-
-    if ideal_dcg == 0:
-        return 0.0
-    return dcg / ideal_dcg
+# ---------------------------------------------------------------------
+# Recall@K
+# ---------------------------------------------------------------------
+def recall_at_k(relevance_list, k, total_positives):
+    relevance_list = np.asarray(relevance_list)[:k]
+    if total_positives == 0:
+        return 0
+    return np.sum(relevance_list) / total_positives
 
 
-# ---------------------------------------------------------------
-# Generate Top-N Recommendations
-# ---------------------------------------------------------------
-def recommend_for_user(model, user_idx, num_items, top_k):
-    user_tensor = tf.constant([user_idx] * num_items)
-    item_tensor = tf.constant(list(range(num_items)))
-
-    preds = model.predict({"user": user_tensor, "item": item_tensor}, verbose=0)
-    preds = preds.reshape(-1)
-
-    ranked_items = np.argsort(preds)[::-1]
-    return ranked_items[:top_k]
+# ---------------------------------------------------------------------
+# Hit Rate@K (Did we recommend at least one correct item?)
+# ---------------------------------------------------------------------
+def hit_rate_at_k(relevance_list, k):
+    relevance_list = np.asarray(relevance_list)[:k]
+    return 1.0 if np.sum(relevance_list) > 0 else 0.0
 
 
-# ---------------------------------------------------------------
-# Full evaluation pipeline
-# ---------------------------------------------------------------
-def evaluate_model(config_path="config/config.yaml"):
+# ---------------------------------------------------------------------
+# Rank items for a single user
+# ---------------------------------------------------------------------
+def rank_user(model, user_id, all_items):
+    """
+    Predict scores for all items for a given user.
+    Returns sorted item indices (highest-score first).
+    """
+    user_arr = np.full(len(all_items), user_id, dtype="int32")
+    item_arr = np.array(all_items, dtype="int32")
 
-    config = load_config(config_path)
+    preds = model.predict({"user": user_arr, "item": item_arr}, verbose=0)
+    scores = preds.reshape(-1)
 
-    # Load dataset (includes ID maps)
-    data = load_recommender_dataset(config_path)
-    test_ds = data["test"]
-    num_users = data["num_users"]
-    num_items = data["num_items"]
-    user_map = data["user_map"]
-    item_map = data["item_map"]
+    return np.argsort(-scores)  # sort descending
 
-    # Load best model
-    best_model_path = os.path.join(config["paths"]["model_dir"], "best_model.keras")
-    model = tf.keras.models.load_model(best_model_path)
 
-    metrics = {}
+# ---------------------------------------------------------------------
+# Evaluate the model across a user test set
+# ---------------------------------------------------------------------
+def evaluate_model(model, test_df, num_items, k=10):
+    """
+    test_df must contain columns:
+        user_idx, item_idx, rating (1 for positive interactions)
 
-    # -----------------------------------------------------------
-    # RMSE
-    # -----------------------------------------------------------
-    if config["evaluation"]["compute_rmse"]:
-        rmse = compute_rmse(model, test_ds)
-        metrics["rmse"] = float(rmse)
-        print(f"[RMSE] {rmse:.4f}")
+    This function computes:
+    ✔ Precision@K
+    ✔ Recall@K
+    ✔ NDCG@K
+    ✔ HitRate@K
+    """
 
-    # -----------------------------------------------------------
-    # Ranking Metrics (Precision@K, Recall@K, NDCG@K)
-    # -----------------------------------------------------------
-    if config["evaluation"]["compute_top_k"]:
+    print(f"[INFO] Evaluating model using Top-{k} metrics...")
 
-        ks = config["evaluation"]["k_values"]
-        precision_scores = {f"precision@{k}": [] for k in ks}
-        recall_scores = {f"recall@{k}": [] for k in ks}
-        ndcg_scores = {f"ndcg@{k}": [] for k in ks}
+    unique_users = test_df["user_idx"].unique()
+    all_items = np.arange(num_items)
 
-        print("[INFO] Evaluating ranking metrics...")
+    precision_scores = []
+    recall_scores = []
+    ndcg_scores = []
+    hr_scores = []
 
-        for user in tqdm(range(num_users)):
+    for user in tqdm(unique_users, desc="Evaluating users"):
 
-            # Ground truth (positive interactions)
-            relevant = set()
-            for batch_x, batch_y in test_ds:
-                mask = (batch_x["user"].numpy() == user) & (batch_y.numpy() == 1)
-                relevant.update(batch_x["item"][mask].numpy())
+        # Positive interactions for this user
+        user_pos_items = (
+            test_df[test_df["user_idx"] == user]["item_idx"].values
+        )
 
-            # Skip users without positive samples
-            if len(relevant) == 0:
-                continue
+        if len(user_pos_items) == 0:
+            continue
 
-            # Generate top-N recommendations
-            recommended = recommend_for_user(
-                model=model,
-                user_idx=user,
-                num_items=num_items,
-                top_k=max(ks)
-            )
+        # Get ranked list of items from the model
+        ranked_items = rank_user(model, user, all_items)
 
-            # Compute metrics
-            for k in ks:
-                precision_scores[f"precision@{k}"].append(
-                    precision_at_k(recommended, relevant, k)
-                )
-                recall_scores[f"recall@{k}"].append(
-                    recall_at_k(recommended, relevant, k)
-                )
-                ndcg_scores[f"ndcg@{k}"].append(
-                    ndcg_at_k(recommended, relevant, k)
-                )
+        # Build relevance vector (1 = relevant, 0 = not relevant)
+        relevance = [1 if item in user_pos_items else 0 for item in ranked_items]
 
-        # Aggregate mean results
-        for k in ks:
-            metrics[f"precision@{k}"] = float(np.mean(precision_scores[f"precision@{k}"]))
-            metrics[f"recall@{k}"] = float(np.mean(recall_scores[f"recall@{k}"]))
-            metrics[f"ndcg@{k}"] = float(np.mean(ndcg_scores[f"ndcg@{k}"]))
+        precision_scores.append(precision_at_k(relevance, k))
+        recall_scores.append(recall_at_k(relevance, k, len(user_pos_items)))
+        ndcg_scores.append(ndcg_at_k(relevance, k))
+        hr_scores.append(hit_rate_at_k(relevance, k))
 
-            print(f"Precision@{k}: {metrics[f'precision@{k}']:.4f}")
-            print(f"Recall@{k}: {metrics[f'recall@{k}']:.4f}")
-            print(f"NDCG@{k}: {metrics[f'ndcg@{k}']:.4f}")
+    results = {
+        "precision@k": float(np.mean(precision_scores)),
+        "recall@k": float(np.mean(recall_scores)),
+        "ndcg@k": float(np.mean(ndcg_scores)),
+        "hit_rate@k": float(np.mean(hr_scores)),
+    }
 
-    # -----------------------------------------------------------
-    # Save metrics
-    # -----------------------------------------------------------
-    ensure_dir(config["paths"]["metrics_dir"])
-    save_metrics(metrics, config["paths"]["metrics_dir"])
+    print("\n[INFO] Evaluation Results")
+    print("===============================")
+    for metric, value in results.items():
+        print(f"{metric}: {value:.4f}")
+    print("===============================\n")
 
-    print("\n[INFO] Evaluation complete.")
-    return metrics
+    return results
