@@ -1,0 +1,46 @@
+# =============================================================================
+# NetRecommender-Capstone — Production Configuration
+# Author: Corey Leath (Trojan3877)
+# Level: L5/L6 Machine Learning Engineer
+# =============================================================================
+
+dataset:
+  path: "data/raw/"
+  processed_path: "data/processed/"
+  ratings_file: "ratings.csv"
+  items_file: "items.csv"
+  min_ratings_per_user: 5
+  test_size: 0.2
+  val_size: 0.1
+  seed: 42
+
+model:
+  embedding_dim: 64
+  hidden_units: [128, 64]
+  dropout_rate: 0.2
+  learning_rate: 0.001
+  l2_regularization: 1e-6
+
+training:
+  batch_size: 128
+  epochs: 20
+  early_stopping_patience: 3
+  shuffle: true
+
+paths:
+  model_dir: "artifacts/model/"
+  logs_dir: "artifacts/logs/"
+  metrics_dir: "artifacts/metrics/"
+  exports_dir: "artifacts/exports/"
+
+evaluation:
+  compute_top_k: true
+  k_values: [5, 10, 20]
+  compute_rmse: true
+  compute_precision_recall: true
+  compute_ndcg: true
+
+deployment:
+  api_enabled: true
+  default_top_k: 10
+  allow_batch_recommend: true
