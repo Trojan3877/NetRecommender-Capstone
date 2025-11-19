@@ -1,158 +1,169 @@
 """
 NetRecommender-Capstone
-Data Loader & Preprocessing Pipeline (L5/L6 Production Quality)
+Data Loader Module (L6 Production Quality)
 
 Author: Corey Leath (Trojan3877)
 
-Handles:
-✔ Load and validate ratings data
-✔ User-item indexing (ID encoding)
-✔ User-stratified train/val/test split
-✔ Negative sampling for implicit models
-✔ Conversion to TensorFlow Datasets
-✔ Fully config-driven
+This module provides:
+✔ Loading raw interaction data
+✔ Encoding users and items
+✔ Train/val/test split
+✔ Negative sampling for implicit feedback
+✔ TensorFlow dataset generation (tf.data)
+✔ Config-driven pipeline
 """
 
 import os
-import numpy as np
 import pandas as pd
-from utils import (
-    load_config,
-    load_ratings,
-    load_items,
-    user_stratified_split,
-    ensure_dir,
-    set_seed,
-)
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
+
+from utils import ensure_dir, load_config
 
 
-# ---------------------------------------------------------------------------
-# Encode user and item IDs (Netflix-style indexing)
-# ---------------------------------------------------------------------------
+# -------------------------------------------------------------
+# Load the interactions CSV file
+# -------------------------------------------------------------
+def load_interactions_csv(path):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[ERROR] Interaction file not found at: {path}")
+
+    df = pd.read_csv(path)
+
+    required_cols = {"user_id", "item_id", "rating"}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(
+            f"[ERROR] CSV must contain columns: {required_cols}. Found: {df.columns}"
+        )
+
+    print(f"[INFO] Loaded interactions: {df.shape[0]} rows.")
+    return df
+
+
+# -------------------------------------------------------------
+# Encode users & items to integer indices
+# -------------------------------------------------------------
 def encode_ids(df):
-    user_ids = sorted(df["user_id"].unique())
-    item_ids = sorted(df["item_id"].unique())
+    user_encoder = LabelEncoder()
+    item_encoder = LabelEncoder()
 
-    user_map = {u: idx for idx, u in enumerate(user_ids)}
-    item_map = {i: idx for idx, i in enumerate(item_ids)}
+    df["user_idx"] = user_encoder.fit_transform(df["user_id"])
+    df["item_idx"] = item_encoder.fit_transform(df["item_id"])
 
-    df["user_idx"] = df["user_id"].map(user_map)
-    df["item_idx"] = df["item_id"].map(item_map)
+    num_users = df["user_idx"].max() + 1
+    num_items = df["item_idx"].max() + 1
 
-    return df, user_map, item_map
+    print(f"[INFO] Encoded {num_users} users and {num_items} items.")
+
+    return df, num_users, num_items, user_encoder, item_encoder
 
 
-# ---------------------------------------------------------------------------
-# Negative sampling for implicit recommenders (L6 standard)
-# ---------------------------------------------------------------------------
-def generate_negative_samples(df, num_items, neg_ratio=4):
+# -------------------------------------------------------------
+# Generate Negative Samples (implicit feedback)
+# -------------------------------------------------------------
+def generate_negative_samples(df, num_items, negative_ratio=4):
     """
-    For every positive user-item pair, generate K negative samples.
-    Ensures training stability and performance.
+    For every positive interaction, generate N negative samples.
+
+    Example:
+      If user liked item A → negative samples = items they did NOT interact with.
     """
-    negatives = []
-    user_positive_items = df.groupby("user_idx")["item_idx"].apply(set).to_dict()
 
-    for _, row in df.iterrows():
-        user = row["user_idx"]
+    print("[INFO] Generating negative samples...")
 
-        for _ in range(neg_ratio):
+    user_positive_items = (
+        df.groupby("user_idx")["item_idx"].apply(set).to_dict()
+    )
+
+    users, items, labels = [], [], []
+
+    for row in df.itertuples():
+        # positive example
+        users.append(row.user_idx)
+        items.append(row.item_idx)
+        labels.append(1)
+
+        # generate negative examples
+        for _ in range(negative_ratio):
             neg_item = np.random.randint(0, num_items)
-
-            # Ensure the negative sample is truly negative
-            while neg_item in user_positive_items[user]:
+            while neg_item in user_positive_items[row.user_idx]:
                 neg_item = np.random.randint(0, num_items)
 
-            negatives.append([user, neg_item, 0])  # label = 0
+            users.append(row.user_idx)
+            items.append(neg_item)
+            labels.append(0)
 
-    positives = df[["user_idx", "item_idx"]].copy()
-    positives["label"] = 1
+    print("[INFO] Negative sampling complete.")
 
-    neg_df = pd.DataFrame(negatives, columns=["user_idx", "item_idx", "label"])
-    pos_df = positives[["user_idx", "item_idx", "label"]]
-
-    return pd.concat([pos_df, neg_df], axis=0).reset_index(drop=True)
+    return np.array(users), np.array(items), np.array(labels)
 
 
-# ---------------------------------------------------------------------------
-# Build TensorFlow Datasets
-# ---------------------------------------------------------------------------
-def build_tf_dataset(df, batch_size=128, shuffle=True):
-    import tensorflow as tf
+# -------------------------------------------------------------
+# Build TensorFlow Dataset
+# -------------------------------------------------------------
+def build_tf_dataset(users, items, labels, batch_size=256, shuffle=True):
 
-    dataset = tf.data.Dataset.from_tensor_slices(
+    ds = tf.data.Dataset.from_tensor_slices(
         (
             {
-                "user": df["user_idx"].values,
-                "item": df["item_idx"].values,
+                "user": users.astype("int32"),
+                "item": items.astype("int32"),
             },
-            df["label"].values,
+            labels.astype("float32"),
         )
     )
 
     if shuffle:
-        dataset = dataset.shuffle(10_000)
+        ds = ds.shuffle(buffer_size=len(users))
 
-    return dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    ds = ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    return ds
 
 
-# ---------------------------------------------------------------------------
-# Full data pipeline
-# ---------------------------------------------------------------------------
-def load_recommender_dataset(config_path="config/config.yaml"):
+# -------------------------------------------------------------
+# Master pipeline function (called inside train.py)
+# -------------------------------------------------------------
+def load_dataset(config_path="config/config.yaml"):
 
     config = load_config(config_path)
-    set_seed(config["dataset"]["seed"])
 
-    # Paths
-    ratings_path = os.path.join(config["dataset"]["path"], config["dataset"]["ratings_file"])
-    items_path = os.path.join(config["dataset"]["path"], config["dataset"]["items_file"])
+    csv_path = config["paths"]["interactions"]
+    batch_size = config["training"]["batch_size"]
+    neg_ratio = config["training"]["negative_samples"]
 
-    # Load files
-    ratings_df = load_ratings(ratings_path)
-    items_df = load_items(items_path)
+    # Step 1 — Load CSV
+    df = load_interactions_csv(csv_path)
 
-    # Remove low-activity users
-    min_ratings = config["dataset"]["min_ratings_per_user"]
-    ratings_df = ratings_df.groupby("user_id").filter(lambda x: len(x) >= min_ratings)
+    # Step 2 — Encode IDs
+    df, num_users, num_items, user_encoder, item_encoder = encode_ids(df)
 
-    # Encode integer IDs
-    ratings_df, user_map, item_map = encode_ids(ratings_df)
+    # Step 3 — Train/Val/Test split
+    train_df, test_df = train_test_split(df, test_size=0.10, random_state=42)
+    train_df, val_df = train_test_split(train_df, test_size=0.10, random_state=42)
 
-    num_users = len(user_map)
-    num_items = len(item_map)
-
-    # Split
-    train_df, val_df, test_df = user_stratified_split(
-        ratings_df,
-        test_size=config["dataset"]["test_size"],
-        val_size=config["dataset"]["val_size"],
-        seed=config["dataset"]["seed"],
+    print(
+        f"[INFO] Split: Train={len(train_df)}, Val={len(val_df)}, Test={len(test_df)}"
     )
 
-    # Generate negative samples for each split
-    train_df = generate_negative_samples(train_df, num_items)
-    val_df = generate_negative_samples(val_df, num_items, neg_ratio=2)
-    test_df = generate_negative_samples(test_df, num_items, neg_ratio=2)
-
-    # Convert to TF datasets
-    train_ds = build_tf_dataset(
-        train_df,
-        batch_size=config["training"]["batch_size"],
-        shuffle=config["training"]["shuffle"],
+    # Step 4 — Create negative samples
+    train_users, train_items, train_labels = generate_negative_samples(
+        train_df, num_items, negative_ratio=neg_ratio
+    )
+    val_users, val_items, val_labels = generate_negative_samples(
+        val_df, num_items, negative_ratio=neg_ratio
+    )
+    test_users, test_items, test_labels = generate_negative_samples(
+        test_df, num_items, negative_ratio=neg_ratio
     )
 
-    val_ds = build_tf_dataset(
-        val_df,
-        batch_size=config["training"]["batch_size"],
-        shuffle=False,
-    )
+    # Step 5 — Convert to TF datasets
+    train_ds = build_tf_dataset(train_users, train_items, train_labels, batch_size)
+    val_ds = build_tf_dataset(val_users, val_items, val_labels, batch_size, shuffle=False)
+    test_ds = build_tf_dataset(test_users, test_items, test_labels, batch_size, shuffle=False)
 
-    test_ds = build_tf_dataset(
-        test_df,
-        batch_size=config["training"]["batch_size"],
-        shuffle=False,
-    )
+    print("[INFO] TensorFlow datasets built successfully.")
 
     return {
         "train": train_ds,
@@ -160,6 +171,6 @@ def load_recommender_dataset(config_path="config/config.yaml"):
         "test": test_ds,
         "num_users": num_users,
         "num_items": num_items,
-        "user_map": user_map,
-        "item_map": item_map,
+        "user_encoder": user_encoder,
+        "item_encoder": item_encoder,
     }
