@@ -1,16 +1,72 @@
 # NetRecommender-Capstone
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![Airflow](https://img.shields.io/badge/Airflow-Orchestration-red)
-![MLflow](https://img.shields.io/badge/MLflow-Tracking-green)
-![MetriXflow](https://img.shields.io/badge/MetriXflow-Metrics-purple)
-![FastAPI](https://img.shields.io/badge/FastAPI-Inference-009688)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ed)
+<p align="left"> <img src="https://img.shields.io/badge/Framework-TensorFlow-orange?style=flat-square" /> <img src="https://img.shields.io/badge/Python-3.10-blue?style=flat-square" /> <img src="https://img.shields.io/badge/Deep%20Learning-NCF%20%7C%20NeuMF-purple?style=flat-square" /> <img src="https://img.shields.io/badge/MLOps-Docker%20%7C%20GPU%20Ready-green?style=flat-square" /> <img src="https://img.shields.io/badge/RecSys-Precision%40K%20%7C%20NDCG%20%7C%20Recall@K-yellow?style=flat-square" /> <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=flat-square" /> <img src="https://img.shields.io/badge/Level-L5%2FL6%20FAANG%20Quality-red?style=flat-square" /> </p>
 
-A Netflix-style recommendation system with **Apache Airflow** orchestration, **MLflow** experiment tracking, **MetriXflow** evaluation metrics, a **FastAPI** inference service, and a **Streamlit** dashboard.
+
+🎯 Overview
+
+NetRecommender-Capstone is a full end-to-end, FAANG-level deep learning recommendation engine.
+It implements Neural Collaborative Filtering (NCF) — the same architecture powering:
+
+Netflix Personalized Ranking
+
+TikTok For-You Feed
+
+YouTube Deep Recommendations
+
+Spotify Homefeed
+
+Amazon Personalize
+
+This repository is designed to demonstrate L6 ML Engineering, MLOps, and RecSys skills.
 
 ![Architecture](assets/NetRecommender_Architecture.png)
+
+🧠 Key Features
+✔ Neural Collaborative Filtering (NCF)
+
+Trainable user embeddings
+
+Trainable item embeddings
+
+Configurable MLP layers
+
+Dropout & L2 regularization
+
+Sigmoid prediction for implicit data
+
+✔ Complete Training Pipeline
+
+Negative Sampling (4:1 ratio)
+
+GPU-accelerated training
+
+TF tf.data pipeline for batching/shuffling
+
+Checkpoint saving
+
+Training logs + metrics export
+
+✔ FAANG-Level Evaluation Metrics
+
+Precision@K
+
+Recall@K
+
+NDCG@K
+
+Hit Rate@K
+
+✔ Production-Ready MLOps
+
+GPU-enabled Dockerfile
+
+Version-pinned requirements.txt
+
+Clean modular folder structure
+
+Fully configurable config.yaml
+
 
 ## Project layout
 ## Quick Start (Docker)
@@ -48,47 +104,59 @@ docker compose up -d --build
 ---
 
 ## 📂 Project Structure
-REPO FILE OVERVIEW
-NetRecommender‑Capstone/
-├── .gitignore
-├── LICENSE
-├── README.md                    ← (to be added last)
+NetRecommender-Capstone/
+│
+├── config/
+│   └── config.yaml
+│
 ├── data/
-│   ├── movies.csv
-│   └── users.csv
-├── recommender/
-│   ├── java/
-│   │   ├── CollaborativeFiltering.java
-│   │   └── ContentBasedFiltering.java
-│   └── python/
-│       └── hybrid_recommender.py
-├── scripts/
-│   ├── train_pipeline.py
-│   └── export_to_csv.py        ← optional
-├── app/
-│   └── main.py
-├── tests/
-│   └── test_hybrid_recommender.py
-├── notebooks/
-│   └── demo_usage.ipynb
-├── streamlit_app/
-│   └── dashboard.py
-├── .github/
-│   └── workflows/
-│       ├── github-actions.yml
-│       └── export-json-to-csv.yml  ← optional
-├── helm/
-│   └── netflix-recommender/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
-│           └── deployment.yaml
-├── ansible/
-│   └── deploy.yml
-├── terraform/
-│   └── main.tf
-└── docs/
-    └── architecture.md
+│   └── interactions.csv
+│
+├── src/
+│   ├── data_loader.py
+│   ├── model.py
+│   ├── train.py
+│   ├── evaluate.py
+│   ├── utils.py
+│
+├── checkpoints/
+├── results/
+├── logs/
+│
+├── Dockerfile
+├── requirements.txt
+└── README.md
+
+         ┌───────────────────┐
+         │   user_id (int)   │
+         └─────────┬─────────┘
+                   ▼
+        ┌──────────────────────┐
+        │  User Embedding (k)  │
+        └──────────────────────┘
+
+         ┌───────────────────┐
+         │   item_id (int)   │
+         └─────────┬─────────┘
+                   ▼
+        ┌──────────────────────┐
+        │ Item Embedding (k)   │
+        └──────────────────────┘
+
+                Concatenate
+                   │
+                   ▼
+         ┌────────────────────────────┐
+         │   MLP Layers (128→64→32)   │
+         └────────────────────────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │ Sigmoid Output Layer │
+        └──────────────────────┘
+                   │
+                   ▼
+         "Recommended or Not"
 
 
 | Layer            | Technologies                                 |
