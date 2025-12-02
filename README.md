@@ -155,7 +155,7 @@ docker run -p 8000:8000 deepsequence-recommender
 
 Academic Pathway 
 
-This project is part of Corey’s journey toward becoming a Machine Learning Engineer and earning a Master's in AI Engineering followed by a PhD in Artificial Intelligence.
+This project is part of My journey toward becoming a Machine Learning Engineer and earning a Master's in AI Engineering followed by a PhD in Artificial Intelligence.
 
 By building end-to-end production-grade systems like DeepSequence-Recommender, Corey demonstrates:
 
