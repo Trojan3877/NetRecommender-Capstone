@@ -1,172 +1,170 @@
-# NetRecommender-Capstone
+<!-- Banner -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Trojan3877/assets/main/deepsequence_banner_dark.png" width="100%" alt="DeepSequence-Recommender Banner"/>
+</p>
 
-<p align="left"> <img src="https://img.shields.io/badge/Framework-TensorFlow-orange?style=flat-square" /> <img src="https://img.shields.io/badge/Python-3.10-blue?style=flat-square" /> <img src="https://img.shields.io/badge/Deep%20Learning-NCF%20%7C%20NeuMF-purple?style=flat-square" /> <img src="https://img.shields.io/badge/MLOps-Docker%20%7C%20GPU%20Ready-green?style=flat-square" /> <img src="https://img.shields.io/badge/RecSys-Precision%40K%20%7C%20NDCG%20%7C%20Recall@K-yellow?style=flat-square" /> <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=flat-square" /> <img src="https://img.shields.io/badge/Level-L5%2FL6%20FAANG%20Quality-red?style=flat-square" /> </p>
+<h1 align="center">DeepSequence-Recommender</h1>
+
+<p align="center">
+  A production-ready recommendation system integrating Deep Learning, Neural Collaborative Filtering, and API deployment. Built to L5/L6 Machine Learning Engineering standards.
+</p>
+
+---
+
+# 🚀 Overview
+
+**DeepSequence-Recommender** is an end-to-end machine learning system designed to model, train, evaluate, and serve recommendation models using industry-standard methods.
+
+This project mirrors the engineering patterns used at **Netflix, TikTok, Amazon, Spotify, and YouTube**, and includes:
+
+- Matrix Factorization (MF)
+- Neural Collaborative Filtering (NCF)
+- FastAPI inference service
+- Dockerized deployment pipeline
+- Ranking metrics (Precision@K, Recall@K, MAP@K, NDCG@K, HitRate)
+- Clean L5/L6 production engineering structure
+
+Transformer sequential models (**SASRec-style**) can be added easily with the provided modular architecture.
+
+---
+
+# 🪪 Badges
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10-blue"/>
+  <img src="https://img.shields.io/badge/PyTorch-2.2-red"/>
+  <img src="https://img.shields.io/badge/FastAPI-Production-green"/>
+  <img src="https://img.shields.io/badge/Docker-Ready-blue"/>
+  <img src="https://img.shields.io/badge/ML%20Engineering-L5%2FL6-purple"/>
+  <img src="https://img.shields.io/badge/Transformers-Ready-orange"/>
+  <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-yellow"/>
+</p>
+
+---
+
+# 🏗 Project Architecture (Light Theme)
+
+                     +-----------------------+
+                     |     Ratings CSV       |
+                     +-----------+-----------+
+                                 |
+                                 v
+                     +-----------------------+
+                     |   Data Preprocessing  |
+                     |  - Encode IDs         |
+                     |  - Normalize Ratings  |
+                     +-----------+-----------+
+                                 |
+                                 v
+     +------------------------------------------------------------+
+     |                        Training Pipeline                    |
+     |-------------------------------------------------------------|
+     |  Config-driven training (MF or NCF)                         |
+     |  PyTorch model training                                    |
+     |  GPU/CPU auto-detection                                    |
+     |  Checkpoint saving                                          |
+     +-------------------------------------------------------------+
+                                 |
+                                 v
+                     +-----------------------+
+                     |      Checkpoints      |
+                     +-----------+-----------+
+                                 |
+                                 v
+              +-------------------------------------+
+              |        Inference Pipeline           |
+              |  - Load checkpoint                  |
+              |  - Recommend top-K items            |
+              |  - Device-aware prediction          |
+              +------------------+------------------+
+                                 |
+                                 v
+                      +-----------------------+
+                      |      FastAPI API      |
+                      |   /recommend/{id}     |
+                      +-----------------------+
+
+---
+![Uploading image.png…]()
+
+# 🔄 System Flow (Light Theme)
 
 
-🎯 Overview
+---
 
-NetRecommender-Capstone is a full end-to-end, FAANG-level deep learning recommendation engine.
-It implements Neural Collaborative Filtering (NCF) — the same architecture powering:
+# 🧠 Models Included
 
-Netflix Personalized Ranking
+### ✔ **Matrix Factorization (MF)**
+Simple, interpretable baseline using:
 
-TikTok For-You Feed
+- User embeddings  
+- Item embeddings  
+- Bias terms  
+- Dot product  
 
-YouTube Deep Recommendations
+### ✔ **Neural Collaborative Filtering (NCF)**
+Deep model using:
 
-Spotify Homefeed
+- Embeddings  
+- MLP tower  
+- LayerNorm  
+- Dropout  
+- Sigmoid output  
 
-Amazon Personalize
+### ✔ **Transformer Ready (SASRec / GPT-like)**
+Your repo is structured to support:
 
-This repository is designed to demonstrate L6 ML Engineering, MLOps, and RecSys skills.
+- Multi-head attention  
+- Positional encoding  
+- Sequential modeling  
+- Next-item prediction  
 
-![Architecture](assets/NetRecommender_Architecture.png)
+(Generated upon request.)
 
-🧠 Key Features
-✔ Neural Collaborative Filtering (NCF)
+---
 
-Trainable user embeddings
+# 📦 Tech Stack
 
-Trainable item embeddings
+- **Python 3.10**
+- **PyTorch**
+- **FastAPI + Uvicorn**
+- **Docker**
+- **YAML configs**
+- **Pandas / NumPy**
+- **Evaluation metrics for ranking**
+- **Neural Network architectures**
 
-Configurable MLP layers
+---
 
-Dropout & L2 regularization
-
-Sigmoid prediction for implicit data
-
-✔ Complete Training Pipeline
-
-Negative Sampling (4:1 ratio)
-
-GPU-accelerated training
-
-TF tf.data pipeline for batching/shuffling
-
-Checkpoint saving
-
-Training logs + metrics export
-
-✔ FAANG-Level Evaluation Metrics
-
-Precision@K
-
-Recall@K
-
-NDCG@K
-
-Hit Rate@K
-
-✔ Production-Ready MLOps
-
-GPU-enabled Dockerfile
-
-Version-pinned requirements.txt
-
-Clean modular folder structure
-
-Fully configurable config.yaml
-
-
-## Project layout
-## Quick Start (Docker)
+# 🏋️ Training Pipeline
 
 ```bash
-# 1) Start all services
-docker compose up -d --build
+python main.py
+uvicorn src.api.fastapi_app:app --reload
+GET /recommend/{user_id}?top_k=10
+{
+  "user_id": "123",
+  "top_k": 10,
+  "recommendations": [
+    {"item_id": "A1", "score": 0.91},
+    {"item_id": "B4", "score": 0.87}
+  ]
+}
+docker build -t deepsequence-recommender .
+docker run -p 8000:8000 deepsequence-recommender
 
-# 2) Open the UIs
-# Airflow:   http://localhost:8080  (user: admin / pw: admin)
-# MLflow:    http://localhost:5000
-# API docs:  http://localhost:8000/docs
-# Dashboard: http://localhost:8501
+Academic Pathway 
 
+This project is part of Corey’s journey toward becoming a Machine Learning Engineer and earning a Master's in AI Engineering followed by a PhD in Artificial Intelligence.
 
-## 📦 Demo Files
+By building end-to-end production-grade systems like DeepSequence-Recommender, Corey demonstrates:
 
-- 📁 [`data/`](./data/README.md): Dataset source and usage
-- 🧪 [`api/examples/example_request.json`](./api/examples/example_request.json): Sample input
-- 🧾 [`api/examples/example_response.json`](./api/examples/example_response.json): Sample output
-- 📓 [`notebooks/demo_usage.ipynb`](./notebooks/demo_usage.ipynb): Demo workflow and visualization
+Mastery of software engineering
 
----
+Applied machine learning
 
-## 📘 Extended Project Overview
+Cloud & containerization
 
-**NetRecommender‑Capstone** is a production-ready movie recommendation engine that blends:
+FastAI/FastAPI deployment
 
-- **Collaborative filtering** (Java/Pearson similarity)  
-- **Content-based filtering** (Java/cosine similarity on genres)  
-- **Hybrid recommendation** (Python/Scikit-learn)
-
-...all exposed via a **FastAPI** and interactive **Streamlit dashboard**, deployed to **Kubernetes** via **Helm**, automated with **Terraform**, **Ansible**, and **GitHub Actions**. Ideal for showcasing end-to-end ML + DevOps practices at scale.
-
----
-
-## 📂 Project Structure
-NetRecommender-Capstone/
-│
-├── config/
-│   └── config.yaml
-│
-├── data/
-│   └── interactions.csv
-│
-├── src/
-│   ├── data_loader.py
-│   ├── model.py
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── utils.py
-│
-├── checkpoints/
-├── results/
-├── logs/
-│
-├── Dockerfile
-├── requirements.txt
-└── README.md
-
-         ┌───────────────────┐
-         │   user_id (int)   │
-         └─────────┬─────────┘
-                   ▼
-        ┌──────────────────────┐
-        │  User Embedding (k)  │
-        └──────────────────────┘
-
-         ┌───────────────────┐
-         │   item_id (int)   │
-         └─────────┬─────────┘
-                   ▼
-        ┌──────────────────────┐
-        │ Item Embedding (k)   │
-        └──────────────────────┘
-
-                Concatenate
-                   │
-                   ▼
-         ┌────────────────────────────┐
-         │   MLP Layers (128→64→32)   │
-         └────────────────────────────┘
-                   │
-                   ▼
-        ┌──────────────────────┐
-        │ Sigmoid Output Layer │
-        └──────────────────────┘
-                   │
-                   ▼
-         "Recommended or Not"
-
-
-| Layer            | Technologies                                 |
-| ---------------- | -------------------------------------------- |
-| ML & Recommender | Java, Python, Scikit‑learn, pandas, numpy    |
-| DevOps & Infra   | Docker, Kubernetes, Helm, Ansible, Terraform |
-| CI/CD            | GitHub Actions, pytest                       |
-| API & Dashboard  | FastAPI, Streamlit                           |
-| Data & Logging   | CSV, pandas, JSON, metrics export            |
-
-
-
-![image](https://github.com/user-attachments/assets/cee7ca96-aa5d-403d-bb83-ef65a352ef3b)
+Big Tech–level project quality
