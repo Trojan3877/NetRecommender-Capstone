@@ -1,18 +1,22 @@
-# ========================== #
-#  L6 Production Requirements #
-# ========================== #
+# ================================
+# NetRecommender Requirements
+# Production-Grade ML System Stack
+# ================================
 
-tensorflow==2.17.0
+fastapi==0.110.0
+uvicorn==0.29.0
+
+# Core ML + Math
+torch==2.2.0
 numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.5.1
-tqdm==4.66.4
-PyYAML==6.0.2
+pandas==2.2.1
+scikit-learn==1.4.0
 
-matplotlib==3.9.0        # optional for visualization
-seaborn==0.13.2          # optional for metrics plots
+# Utility + Config
+pyyaml==6.0.1
 
-# If you later add FastAPI or Streamlit:
-# fastapi==0.111.0
-# uvicorn==0.29.0
-# streamlit==1.35.0
+# For evaluation + ranking
+tqdm==4.66.2
+
+# Optional (but helpful)
+python-dotenv==1.0.1
