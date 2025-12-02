@@ -1,56 +1,31 @@
-# ================================================================
-# NetRecommender-Capstone — L6 Production Dockerfile
-# GPU-enabled TensorFlow + Python environment
-# Author: Corey Leath (Trojan3877)
-# ================================================================
+# ============================================================
+#   NetRecommender Production Dockerfile
+#   L5/L6 ML Engineering Container
+# ============================================================
 
-# ------------------------------------------------
-# BASE IMAGE (NVIDIA GPU-Optimized TensorFlow)
-# ------------------------------------------------
-FROM tensorflow/tensorflow:latest-gpu
+# 1. Use official lightweight Python base image
+FROM python:3.10-slim
 
-# ------------------------------------------------
-# System Dependencies
-# ------------------------------------------------
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    build-essential \
-    python3-dev \
-    libgl1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# ------------------------------------------------
-# Set Working Directory
-# ------------------------------------------------
+# 2. Set working directory
 WORKDIR /app
 
-# ------------------------------------------------
-# Copy Requirements First (Layer Caching)
-# ------------------------------------------------
-COPY requirements.txt .
+# 3. Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# ------------------------------------------------
-# Install Python dependencies
-# ------------------------------------------------
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# 4. Copy requirement file first for caching
+COPY requirements.txt ./requirements.txt
 
-# ------------------------------------------------
-# Copy Application Code
-# ------------------------------------------------
+# 5. Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 6. Copy entire project into container
 COPY . .
 
-# ------------------------------------------------
-# Create Non-Root User for Security
-# ------------------------------------------------
-RUN useradd -m appuser
-USER appuser
+# 7. Expose FastAPI port
+EXPOSE 8000
 
-# ------------------------------------------------
-# Expose Ports (for API or model server later)
-# ------------------------------------------------
-EXPOSE 8080
-
-# ------------------------------------------------
-# Default Command (train or inference)
-# ------------------------------------------------
-CMD ["python", "src/train.py"]
+# 8. Run the FastAPI server
+CMD ["uvicorn", "src.api.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
