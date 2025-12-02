@@ -1,36 +1,41 @@
-NetRecommender-Capstone/
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│
-├── dags/
-│   └── recommender_pipeline_dag.py       ← Airflow orchestration
-│
-├── models/
-│   ├── model.pkl
-│   └── model_metadata.json
-│
-├── notebooks/
-│   └── demo_notebook.ipynb
+NetRecommender/
 │
 ├── src/
-│   ├── data_preprocessing.py
-│   ├── model_training.py
-│   ├── evaluation.py
-│   └── api_service.py                    ← FastAPI endpoint
+│   ├── data/
+│   │   ├── load_data.py
+│   │   └── preprocess.py
+│   │
+│   ├── models/
+│   │   ├── baseline_cf.py
+│   │   ├── neural_recommender.py
+│   │   └── embeddings.py
+│   │
+│   ├── evaluation/
+│   │   ├── metrics.py
+│   │   └── ranking_eval.py
+│   │
+│   ├── pipelines/
+│   │   ├── train_pipeline.py
+│   │   └── inference_pipeline.py
+│   │
+│   └── api/
+│       └── fastapi_app.py
 │
-├── tracking/
-│   ├── mlruns/                           ← MLflow tracking
-│   ├── metrics.md                        ← Professional metrics log
-│   └── reports/
+├── configs/
+│   ├── train_config.yaml
+│   └── model_config.yaml
 │
-├── airflow_settings/
-│   ├── airflow.cfg
-│   └── requirements.txt
+├── notebooks/
+│   └── model_experiments.ipynb
 │
-├── Dockerfile
+├── tests/
+│   ├── test_data.py
+│   ├── test_models.py
+│   └── test_api.py
+│
+├── metrics.md
 ├── requirements.txt
-├── README.md
+├── Dockerfile
+├── .dockerignore
 ├── .gitignore
-└── LICENSE
+└── README.md 
