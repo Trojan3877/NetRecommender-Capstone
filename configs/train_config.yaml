@@ -1,0 +1,43 @@
+# =======================================================
+# NetRecommender Training Configuration
+# Production-Ready ML Engineering YAML File
+# =======================================================
+
+# -----------------------------
+# Model selection
+# Options:
+#   - "matrix_factorization"
+#   - "neural_cf"
+# -----------------------------
+model_type: "neural_cf"
+
+# -----------------------------
+# Embedding dimensions
+# -----------------------------
+embedding_dim: 64
+
+# -----------------------------
+# Neural CF Hidden Layers
+# -----------------------------
+hidden_dims:
+  - 128
+  - 64
+  - 32
+
+# -----------------------------
+# Regularization
+# -----------------------------
+dropout: 0.2
+
+# -----------------------------
+# Training Hyperparameters
+# -----------------------------
+batch_size: 256
+learning_rate: 0.001
+epochs: 10
+
+# -----------------------------
+# Data Split
+# -----------------------------
+test_size: 0.2
+random_seed: 42
