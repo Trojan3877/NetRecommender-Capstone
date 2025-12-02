@@ -1,0 +1,53 @@
+# =======================================================
+#   NetRecommender Docker Ignore File
+#   Prevents unnecessary files from entering the image
+# =======================================================
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Logs
+logs/
+*.log
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Datasets
+data/raw/
+data/processed/
+
+# Model checkpoints
+checkpoints/
+*.pth
+*.pt
+
+# Environment files
+.env
+*.env
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# Git and version control
+.git/
+.gitignore
+
+# IDE settings
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+
+# Docker itself
+Dockerfile~
