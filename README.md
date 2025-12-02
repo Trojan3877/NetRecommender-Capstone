@@ -28,7 +28,7 @@ Transformer sequential models (**SASRec-style**) can be added easily with the pr
 
 ---
 
-# 🪪 Badges
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10-blue"/>
