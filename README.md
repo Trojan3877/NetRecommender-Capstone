@@ -4,7 +4,6 @@
 </p>
 
 <h1 align="center">DeepSequence-Recommender</h1>
-
 <p align="center">
   A production-ready recommendation system integrating Deep Learning, Neural Collaborative Filtering, and API deployment. Built to L5/L6 Machine Learning Engineering standards.
 </p>
