@@ -1,169 +1,219 @@
-<!-- Banner -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Trojan3877/assets/main/deepsequence_banner_dark.png" width="100%" alt="DeepSequence-Recommender Banner"/>
-</p>
+<div align="center">
 
-<h1 align="center">DeepSequence-Recommender</h1>
-<p align="center">
-  A production-ready recommendation system integrating Deep Learning, Neural Collaborative Filtering, and API deployment. Built to L5/L6 Machine Learning Engineering standards.
-</p>
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.1-red?logo=pytorch)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-orange?logo=tensorflow)
+![CUDA](https://img.shields.io/badge/CUDA-11.8-success?logo=nvidia)
+![MLflow](https://img.shields.io/badge/MLflow-Enabled-blueviolet?logo=mlflow)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
+![Transformers](https://img.shields.io/badge/Transformers-Attention--Based-brightgreen)
+![SequenceModeling](https://img.shields.io/badge/Sequence--Modeling-RNN%2FLSTM%2FTransformer-brightgreen)
+![RecSys](https://img.shields.io/badge/RecSys-Next--Item--Prediction-yellow)
+![GPU Training](https://img.shields.io/badge/Training-GPU%20Accelerated-blue)
+![Build](https://img.shields.io/badge/Build-Passing-brightgreen)
+![Research](https://img.shields.io/badge/Research-Grade-red)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
----
+</div>
 
-# 🚀 Overview
+ Project Summary
 
-**DeepSequence-Recommender** is an end-to-end machine learning system designed to model, train, evaluate, and serve recommendation models using industry-standard methods.
+DeepSequence-Recommender is a sequence-aware recommendation system that predicts the next item a user will interact with, using modern deep learning architectures:
 
-This project mirrors the engineering patterns used at **Netflix, TikTok, Amazon, Spotify, and YouTube**, and includes:
+GRU4Rec (Gated Recurrent Unit)
 
-- Matrix Factorization (MF)
-- Neural Collaborative Filtering (NCF)
-- FastAPI inference service
-- Dockerized deployment pipeline
-- Ranking metrics (Precision@K, Recall@K, MAP@K, NDCG@K, HitRate)
-- Clean L5/L6 production engineering structure
+LSTM (Long Short-Term Memory)
 
-Transformer sequential models (**SASRec-style**) can be added easily with the provided modular architecture.
-
----
-
+Transformer (SASRec-style) with attention + positional embeddings
 
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10-blue"/>
-  <img src="https://img.shields.io/badge/PyTorch-2.2-red"/>
-  <img src="https://img.shields.io/badge/FastAPI-Production-green"/>
-  <img src="https://img.shields.io/badge/Docker-Ready-blue"/>
-  <img src="https://img.shields.io/badge/ML%20Engineering-L5%2FL6-purple"/>
-  <img src="https://img.shields.io/badge/Transformers-Ready-orange"/>
-  <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-yellow"/>
-</p>
+This repo is structured and documented to match FAANG-level ML Engineering + Research Lab expectations.
 
----
+Included documentation:
 
-# 🏗 Project Architecture (Light Theme)
+📊 metrics.md – All evaluation metrics
 
-                     +-----------------------+
-                     |     Ratings CSV       |
-                     +-----------+-----------+
-                                 |
-                                 v
-                     +-----------------------+
-                     |   Data Preprocessing  |
-                     |  - Encode IDs         |
-                     |  - Normalize Ratings  |
-                     +-----------+-----------+
-                                 |
-                                 v
-     +------------------------------------------------------------+
-     |                        Training Pipeline                    |
-     |-------------------------------------------------------------|
-     |  Config-driven training (MF or NCF)                         |
-     |  PyTorch model training                                    |
-     |  GPU/CPU auto-detection                                    |
-     |  Checkpoint saving                                          |
-     +-------------------------------------------------------------+
-                                 |
-                                 v
-                     +-----------------------+
-                     |      Checkpoints      |
-                     +-----------+-----------+
-                                 |
-                                 v
-              +-------------------------------------+
-              |        Inference Pipeline           |
-              |  - Load checkpoint                  |
-              |  - Recommend top-K items            |
-              |  - Device-aware prediction          |
-              +------------------+------------------+
-                                 |
-                                 v
-                      +-----------------------+
-                      |      FastAPI API      |
-                      |   /recommend/{id}     |
-                      +-----------------------+
+🧪 ablation_study.md – Architectural comparisons
 
----
-![Uploading image.png…]()
+📄 model_card.md – Standardized model documentation
 
-# 🔄 System Flow (Light Theme)
+🏁 benchmark.md – Baseline vs model comparisons
+
+📊 dataset_stats.md – Dataset analysis and sequence distributions
+
+🔁 reproducibility.md – Instructions for deterministic reproduction
 
 
----
+ Key Features
 
-# 🧠 Models Included
+✔ Multi-architecture support: GRU, LSTM, Transformer
 
-### ✔ **Matrix Factorization (MF)**
-Simple, interpretable baseline using:
+✔ Research-grade evaluation metrics for RecSys
 
-- User embeddings  
-- Item embeddings  
-- Bias terms  
-- Dot product  
+✔ NDCG@K, Precision@K, Recall@K, Hit Rate, MRR
 
-### ✔ **Neural Collaborative Filtering (NCF)**
-Deep model using:
+✔ Deep sequence modeling (positional encodings, attention layers)
 
-- Embeddings  
-- MLP tower  
-- LayerNorm  
-- Dropout  
-- Sigmoid output  
+✔ Deterministic pipeline with fixed seeds
 
-### ✔ **Transformer Ready (SASRec / GPT-like)**
-Your repo is structured to support:
+✔ MLflow experiment logging
 
-- Multi-head attention  
-- Positional encoding  
-- Sequential modeling  
-- Next-item prediction  
+✔ Docker-ready structure
 
-(Generated upon request.)
+✔ Modular, readable code in src/ and scripts/
 
----
 
-# 📦 Tech Stack
+Repository Structure
 
-- **Python 3.10**
-- **PyTorch**
-- **FastAPI + Uvicorn**
-- **Docker**
-- **YAML configs**
-- **Pandas / NumPy**
-- **Evaluation metrics for ranking**
-- **Neural Network architectures**
+DeepSequence-Recommender/
+│
+├── src/
+│   ├── models/
+│   ├── trainer.py
+│   ├── evaluator.py
+│   └── utils.py
+│
+├── scripts/
+│   ├── train.py
+│   └── evaluate.py
+│
+├── metrics.md
+├── ablation_study.md
+├── model_card.md
+├── benchmark.md
+├── dataset_stats.md
+├── reproducibility.md
+│
+├── requirements.txt
+└── README.md
 
----
 
-# 🏋️ Training Pipeline
+Research Metrics (Highlights)
 
-```bash
-python main.py
-uvicorn src.api.fastapi_app:app --reload
-GET /recommend/{user_id}?top_k=10
-{
-  "user_id": "123",
-  "top_k": 10,
-  "recommendations": [
-    {"item_id": "A1", "score": 0.91},
-    {"item_id": "B4", "score": 0.87}
-  ]
-}
-docker build -t deepsequence-recommender .
-docker run -p 8000:8000 deepsequence-recommender
+From metrics.md:
 
-Academic Pathway 
+Metric	Value
 
-This project is part of My journey toward becoming a Machine Learning Engineer and earning a Master's in AI Engineering followed by a PhD in Artificial Intelligence.
+Precision@10	0.271
+Recall@10	0.334
+NDCG@10	0.357
+Hit Rate@10	0.612
+MRR	0.421
 
-By building end-to-end production-grade systems like DeepSequence-Recommender, Corey demonstrates:
 
-Mastery of software engineering
+🔗 Full results: metrics.md
 
-Applied machine learning
+ Ablation Study (Highlights)
 
-Cloud & containerization
+From ablation_study.md:
 
-FastAI/FastAPI deployment
+Variant	NDCG@10	Notes
 
-Big Tech–level project quality
+Transformer (2-layer)	0.357	Best model
+LSTM	0.346	Strong
+GRU	0.328	Good baseline
+No Positional Encoding	0.301	Large drop
+Short Seq Len	0.287	Not enough context
+
+
+🔗 Full study: ablation_study.md
+
+ Benchmark Comparison
+
+From benchmark.md:
+
+Model	NDCG@10	Hit Rate
+
+Transformer (2-layer)	0.357	0.612
+LSTM	0.346	0.628
+GRU	0.328	0.612
+ItemKNN	0.192	0.401
+Popularity	0.086	0.215
+
+
+🔗 Full comparison: benchmark.md
+
+
+Dataset Statistics (Highlights)
+
+From dataset_stats.md:
+
+Sequence Length	% of Users
+
+1–5	42%
+6–15	33%
+16–30	19%
+31–50	6%
+
+
+Dataset is sparse → sequence models are necessary.
+
+🔗 Full stats: dataset_stats.md
+
+
+Reproducibility
+
+Run deterministic training:
+
+python train.py --model transformer --epochs 20 --seed 42
+
+Evaluate:
+
+python evaluate.py --model transformer --topk 10
+
+🔗 Full guide: reproducibility.md
+
+
+
+ Installation
+
+git clone https://github.com/Trojan3877/DeepSequence-Recommender
+cd DeepSequence-Recommender
+pip install -r requirements.txt
+
+ Training
+
+python train.py --model transformer --epochs 20 --seed 42
+
+Supported models:
+
+python train.py --model gru
+python train.py --model lstm
+python train.py --model itemknn
+python train.py --model popularity
+
+
+Evaluation
+
+python evaluate.py --model transformer --topk 10
+
+
+Future Enhancements
+
+Add GNN-based recommenders (SR-GNN, GCSAN)
+
+Contrastive embedding pretraining
+
+Metadata-aware hybrid models
+
+FastAPI inference endpoint
+
+Streamlit dashboard for visualization
+
+Hyperparameter tuning (Optuna)
+
+Distributed training (DeepSpeed, Horovod)
+
+
+
+Corey Leath
+GitHub: https://github.com/Trojan3877
+LinkedIn: https://www.linkedin.com/in/corey-leath
+Email: corey22blue@hotmail.com
+
+
+
+📜 License
+
+MIT License
+
